@@ -49,6 +49,9 @@ Set minimum possible TTL to propagate records fast as possible.
 - https://www.mailgenius.com/
 - https://glockapps.com/inbox-email-tester
 - https://glockapps.com/domain-checker/
+- https://www.mimecast.com/products/dmarc-analyzer/spf-record-check/
+- https://multirbl.valli.org/
+- https://internet.nl/test-mail/
 
 # Additional protection for Roundcube
 - https://mailvelope.com
