@@ -41,6 +41,7 @@ Set minimum possible TTL to propagate records fast as possible.
 # Services to test mail server
 - https://toolbox.googleapps.com/apps/dig
 - https://toolbox.googleapps.com/apps/checkmx
+- https://www.ssllabs.com/ssltest/index.html
 - https://mxtoolbox.com/emailhealth/
 - https://www.mail-tester.com
 - https://www.experte.com/spam-checker
