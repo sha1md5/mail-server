@@ -1,0 +1,86 @@
+services:
+  mailserver:
+    image: mailserver/docker-mailserver:latest
+    container_name: mailserver
+    hostname: mail
+    domainname: {DOMAIN.TLD}
+    restart: unless-stopped
+    ports:
+      - "25:25"
+      - "465:465"
+      - "587:587"
+      - "143:143"
+      - "993:993"
+      - "110:110"
+      - "995:995"
+    environment:
+      - ENABLE_SPAMASSASSIN=1
+      - ENABLE_CLAMAV=1
+      - ENABLE_FAIL2BAN=1
+      - ENABLE_POSTGREY=1
+      - ENABLE_RSPAMD=1
+      - SSL_TYPE=manual
+      - SSL_CERT_PATH=/certs/cert1.pem
+      - SSL_KEY_PATH=/certs/privkey1.pem
+      - DMS_DEBUG=0
+      - POSTMASTER_ADDRESS=postmaster@{DOMAIN.TLD}
+      - ONE_DIR=1
+      - DOVECOT_TLS=1
+      - DOVECOT_SSL=1
+      - ENABLE_DKIM=1
+      - DKIM_SELECTOR=mail
+      - DKIM_DOMAIN={DOMAIN.TLD}
+      - DKIM_KEY_LENGTH=2048
+      - ENABLE_SPF=1
+      - ENABLE_DMARC=1
+      - DMARC_RUA=mailto:dmarc-reports@{DOMAIN.TLD}
+      - DMARC_RUF=mailto:dmarc-reports@{DOMAIN.TLD}
+      - TZ=UTC
+    volumes:
+      - ./persisted/mail/:/var/mail
+      - ./persisted/mailstate/:/var/mail-state
+      - ./persisted/maillogs/:/var/log/mail
+      - ./config/:/tmp/docker-mailserver/
+      - /certs/letsencrypt/archive/{DOMAIN.TLD}/:/certs:ro
+      - /etc/localtime:/etc/localtime:ro
+    cap_add:
+      - NET_ADMIN
+    networks:
+      - mailserver
+
+  roundcube:
+    image: roundcube/roundcubemail:latest
+    container_name: roundcube
+    hostname: roundcube
+    restart: unless-stopped
+    ports:
+      - "14380:80"
+#      - "127.0.0.1:14380:80"
+    environment:
+      - ROUNDCUBEMAIL_DEFAULT_HOST=ssl://mailserver
+      - ROUNDCUBEMAIL_DEFAULT_PORT=993
+      - ROUNDCUBEMAIL_SMTP_SERVER=ssl://mailserver
+      - ROUNDCUBEMAIL_SMTP_PORT=465
+#      - ROUNDCUBEMAIL_USERNAME_DOMAIN=
+      - ROUNDCUBEMAIL_PLUGINS=archive,zipdownload
+      - ROUNDCUBEMAIL_INSTALL_PLUGINS=1
+#      - ROUNDCUBEMAIL_ASPELL_DICTS=en,pt,ru
+      - ROUNDCUBEMAIL_UPLOAD_MAX_FILESIZE=10M
+      - ROUNDCUBEMAIL_SKIN=elastic
+    volumes:
+      - ./persisted/roundcube/db/:/var/roundcube/db
+      - ./persisted/roundcube/html/:/var/www/html
+      - ./config.additional.inc.php:/config.additional/config.additional.inc.php:ro
+      - /certs/letsencrypt/archive/{DOMAIN.TLD}/:/certs:ro
+      - ./roundcube-command.sh:/usr/local/bin/roundcube-command.sh:ro
+    networks:
+      - mailserver
+#      - reverse-proxy
+    depends_on:
+      - mailserver
+
+networks:
+  mailserver:
+    driver: bridge
+#  reverse-proxy:
+#    external: true
