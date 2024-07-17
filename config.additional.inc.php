@@ -16,3 +16,10 @@ $config['smtp_conn_options'] = [
     'ssl' => $verifyConf,
     'tls' => $verifyConf,
 ];
+
+// system error reporting, sum of: 1 = log; 4 = show
+/*$config['debug_level'] = 1;
+$config['sql_debug'] = true;
+$config['imap_debug'] = true;
+$config['ldap_debug'] = true;
+$config['smtp_debug'] = true;*/
